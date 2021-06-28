@@ -1,0 +1,9 @@
+{
+  "db_url":"jdbc:mysql://rm-t4nve871gn816922d.mysql.singapore.rds.aliyuncs.com:3306/wallet_exchange?characterEncoding=utf-8&useSSL=false&allowMultiQueries=true",
+  "db_driver_class":"com.mysql.cj.jdbc.Driver",
+  "db_user":"wallet7role",
+  "db_password":"bE6AzlL8Y70*O6C3",
+  "redis_host":"192.168.1.69",
+  "redis_port":"6379",
+  "redis_auth":"oQFMvr*QgoX4vznj"
+}

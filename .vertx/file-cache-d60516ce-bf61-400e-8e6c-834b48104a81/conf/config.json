@@ -1,0 +1,9 @@
+{
+  "db_url":"jdbc:mysql://192.168.1.69:3307/test?useUnicode=true&characterEncoding=utf8",
+  "db_driver_class":"com.mysql.cj.jdbc.Driver",
+  "db_user":"root",
+  "db_password":"DEbZYnu8?KaCtZCZ",
+  "redis_host":"192.168.1.69",
+  "redis_port":"6379",
+  "redis_auth":"oQFMvr*QgoX4vznj"
+}

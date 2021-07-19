@@ -65,7 +65,7 @@ public class ReadHtml {
     }
 
     public GuPiaoContent getSinLanGuPiaoInfo(String code){
-        String uri="http://hq.sinajs.cn/list=sh"+code;
+        String uri="http://hq.sinajs.cn/list="+code;
         GuPiaoContent content = new GuPiaoContent();
         try{
             String results = HttpUtils.doGet(uri);

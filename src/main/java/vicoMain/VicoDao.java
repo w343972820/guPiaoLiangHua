@@ -85,9 +85,28 @@ public class VicoDao {
         });
         return future;
     }
+    public void insertFenHong(ArrayList<String> guPiaoList){
+        String sql = "insert into GuPiaoFenHongInfo(code) values ";
+        for(String ss:guPiaoList){
+            sql = sql+" (\""+ss+"\"),";
+        }
+        sql=sql.substring(0,sql.length()-1);
+        logger.info("sql:"+sql);
+        jdbcClient.update(sql,hander->{
+            if (hander.succeeded()){
+                logger.info("修改成功："+hander.result().getUpdated());
+
+            }else{
+                logger.info("失败..."+hander.cause().getMessage());
+            }
+        });
+    }
+
     public void goPiaofenHongInsertKu(String code,ArrayList<String> guPiaoList){
-        String sqlUid = "select code from GuPiaoFenHong where code="+code;
-        jdbcClient.query(sqlUid,qurSql->{
+        logger.info("code:->"+code);
+        String sqlUid = "select code from GuPiaoFenHongInfo where code=?";
+        JsonArray par = new JsonArray().add(code);
+        jdbcClient.queryWithParams(sqlUid,par,qurSql->{
             if (qurSql.succeeded()){
                 logger.info("已查到数据库了");
                 // 获取到查询的结果，Vert.x对ResultSet进行了封装
@@ -97,21 +116,16 @@ public class VicoDao {
                 if (resultsList.size()>0){
                     //如果有数所据，就修改
                     logger.info("去修改数据库");
-                }else{
-                    logger.info("去插入数据库..");
                     String newTime = guPiaoList.get(0);
                     String songGu = guPiaoList.get(1);
                     String zhuanZheng = guPiaoList.get(2);
                     String paiXi = guPiaoList.get(3);
                     String jingDu = guPiaoList.get(4);
                     String guQuanDengJiRi = guPiaoList.get(6);
-                   /* if (guQuanDengJiRi.equals("--")){
-                        guQuanDengJiRi="";
-                    }*/
-                   logger.info("newTime:"+newTime+" songGu:"+songGu+" paiXi:"+paiXi);
+                    logger.info("newTime:"+newTime+" songGu:"+songGu+" paiXi:"+paiXi);
                     String times = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                    String sql = "insert into GuPiaoFenHong(code,newTime,songGu,zhuanZheng,paiXi,jingDu,guQuanDengJiRi,times) values (?,?,?,?,?,?,?,?)";
-                    JsonArray params = new JsonArray().add(code);
+                    String sql = "update GuPiaoFenHongInfo set noticeDate=?,songGu=?,zhenGu=?,paiXi=?,jinDu=?,dengJiRi=?,times=? where code=?";
+                    JsonArray params = new JsonArray();
                     params.add(newTime);
                     params.add(songGu);
                     params.add(zhuanZheng);
@@ -119,6 +133,7 @@ public class VicoDao {
                     params.add(jingDu);
                     params.add(guQuanDengJiRi);
                     params.add(times);
+                    params.add(code);
                     jdbcClient.updateWithParams(sql,params,inserSql->{
                         if (inserSql.succeeded()){
                             logger.info("插入数据库成功");
@@ -126,6 +141,8 @@ public class VicoDao {
                             logger.info("插入数据库失败");
                         }
                     });
+                }else{
+                    logger.info("数据库没找到。。。");
                 }
             }else{
                 logger.info("没查到数据库..");
@@ -154,7 +171,7 @@ public class VicoDao {
     public void qureyCode(Handler<AsyncResult<ArrayList<GuPiaoContent>>> handler){
         Future<ArrayList<GuPiaoContent>> future = Future.future();
         future.setHandler(handler);
-        String sqlUid = "select code,name,trade from HuGuPiaoInfo";
+        String sqlUid = "select code,name,currentPrice from GuPiaoFenHongInfo";
         ArrayList<GuPiaoContent> contentList=new ArrayList<>();
         jdbcClient.query(sqlUid,qurSql->{
             if (qurSql.succeeded()){
@@ -179,7 +196,7 @@ public class VicoDao {
     public void qureyFenHongCode(Handler<AsyncResult<ArrayList<String>>> handler){
         Future<ArrayList<String>> future = Future.future();
         future.setHandler(handler);
-        String sqlUid = "select code from GuPiaoFenHong";
+        String sqlUid = "select code from GuPiaoFenHongInfo";
         ArrayList<String> contentList=new ArrayList<>();
         jdbcClient.query(sqlUid,qurSql->{
             if (qurSql.succeeded()){
@@ -200,7 +217,7 @@ public class VicoDao {
     public void updateFenHong(GuPiaoContent content){
 
         //先查出paixi计算出年化在存数据库
-        String paixiSql="select paiXi from GuPiaoFenHong where code=?";
+        String paixiSql="select paiXi from GuPiaoFenHongInfo where code=?";
         JsonArray par = new JsonArray().add(content.getCode());
         jdbcClient.queryWithParams(paixiSql,par,qurSql->{
             if (qurSql.succeeded()){
@@ -213,7 +230,7 @@ public class VicoDao {
                 DecimalFormat df = new DecimalFormat("0.000");
                 String str = df.format(nianHua);
                 logger.info("年化："+str);
-                String sqlUid = "update GuPiaoFenHong set name =?,newJiaGe=?,nianHua=? where code = ?";
+                String sqlUid = "update GuPiaoFenHongInfo set name =?,currentPrice=?,nianHua=? where code = ?";
                 JsonArray params = new JsonArray().add(content.getName());
                 params.add(content.getTrade());
                 params.add(str);
